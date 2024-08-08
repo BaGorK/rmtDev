@@ -1,16 +1,20 @@
-import BookmarksButton from "./BookmarksButton";
-import Logo from "./Logo";
-import SearchForm from "./SearchForm";
+import React from 'react';
+import BookmarksButton from './BookmarksButton';
+import Logo from './Logo';
 
-export default function Header() {
+type Prop = {
+  children: React.ReactNode;
+};
+
+export default function Header({ children }: Prop) {
   return (
     <header className='header'>
       <div className='header__top'>
-        <Logo/>
-        <BookmarksButton/>
+        <Logo />
+        <BookmarksButton />
       </div>
 
-      <SearchForm/>
+      {children}
     </header>
   );
 }
