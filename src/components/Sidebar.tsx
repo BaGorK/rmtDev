@@ -3,11 +3,17 @@ import PaginationControls from './PaginationControls';
 import ResultsCount from './ResultsCount';
 import SortingControls from './SortingControls';
 
-export default function Sidebar({ children }: { children: React.ReactNode }) {
+export default function Sidebar({
+  children,
+  numOfResults,
+}: {
+  children: React.ReactNode;
+  numOfResults: number;
+}) {
   return (
     <div className='sidebar'>
       <div className='sidebar__top'>
-        <ResultsCount />
+        <ResultsCount numOfResults={numOfResults}/>
         <SortingControls />
       </div>
 

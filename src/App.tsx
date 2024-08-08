@@ -8,12 +8,19 @@ import SearchForm from './components/SearchForm';
 import JobItemContent from './components/JobItemContent';
 import Sidebar from './components/Sidebar';
 import JobList from './components/JobList';
-import { useJobItems } from './lib/hooks';
+import { useActiveId, useDebounce, useJobItem, useJobItems } from './lib/hooks';
 
 function App() {
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState<string>('');
+  const { activeId } = useActiveId();
+  const debouncedSearchText = useDebounce<string>(searchText, 500);
+  const {
+    jobItemsSliced: jobItems,
+    numOfResults,
+    isLoading: isLoadingAllJobs,
+  } = useJobItems(debouncedSearchText);
 
-  const { jobItemsSliced: jobItems, isLoading } = useJobItems(searchText);
+  const { activeJob, isLoading: isLoadingJobItem } = useJobItem(activeId);
 
   const handleSearchText = (text: string) => {
     setSearchText(text);
@@ -31,10 +38,10 @@ function App() {
       </Header>
 
       <Container>
-        <Sidebar>
-          <JobList jobItems={jobItems} isLoading={isLoading} />
+        <Sidebar numOfResults={numOfResults}>
+          <JobList jobItems={jobItems} isLoading={isLoadingAllJobs} />
         </Sidebar>
-        <JobItemContent />
+        <JobItemContent isLoading={isLoadingJobItem} activeJob={activeJob} />
       </Container>
 
       <Footer />
