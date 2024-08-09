@@ -8,23 +8,39 @@ import SearchForm from './components/SearchForm';
 import JobItemContent from './components/JobItemContent';
 import Sidebar from './components/Sidebar';
 import JobList from './components/JobList';
-import { useActiveId, useDebounce, useJobItem, useJobItems } from './lib/hooks';
+import { useActiveId, useJobItem, useJobItems } from './lib/hooks';
+import { type JobItemDetail, type JobItem } from './lib/types';
+import { useDebounce } from './lib/utils';
+import toast from 'react-hot-toast';
 
 function App() {
   const [searchText, setSearchText] = useState<string>('');
   const { activeId } = useActiveId();
   const debouncedSearchText = useDebounce<string>(searchText, 500);
+
   const {
-    jobItemsSliced: jobItems,
-    numOfResults,
+    data: jobItems,
     isLoading: isLoadingAllJobs,
+    isError: errorOnFetchingAllJobItems,
   } = useJobItems(debouncedSearchText);
 
-  const { activeJob, isLoading: isLoadingJobItem } = useJobItem(activeId);
+  const {
+    data: activeJob,
+    isLoading: isLoadingJobItem,
+    isError: errorOnFetchingJobDetail,
+  } = useJobItem(activeId);
 
   const handleSearchText = (text: string) => {
     setSearchText(text);
   };
+
+  if (errorOnFetchingAllJobItems) {
+    toast.error('Error fetching all jobs');
+  }
+
+  if (errorOnFetchingJobDetail) {
+    toast.error('Error fetching job detail');
+  }
 
   return (
     <>
@@ -38,10 +54,17 @@ function App() {
       </Header>
 
       <Container>
-        <Sidebar numOfResults={numOfResults}>
-          <JobList jobItems={jobItems} isLoading={isLoadingAllJobs} />
+        <Sidebar numOfResults={jobItems?.length}>
+          <JobList
+            jobItems={jobItems as JobItem[]}
+            isLoading={isLoadingAllJobs}
+          />
+          <></>
         </Sidebar>
-        <JobItemContent isLoading={isLoadingJobItem} activeJob={activeJob} />
+        <JobItemContent
+          isLoading={isLoadingJobItem}
+          activeJob={activeJob as JobItemDetail}
+        />
       </Container>
 
       <Footer />

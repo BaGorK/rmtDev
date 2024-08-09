@@ -5,15 +5,15 @@ import SortingControls from './SortingControls';
 
 export default function Sidebar({
   children,
-  numOfResults,
+  numOfResults = 0,
 }: {
   children: React.ReactNode;
-  numOfResults: number;
+  numOfResults?: number;
 }) {
   return (
     <div className='sidebar'>
       <div className='sidebar__top'>
-        <ResultsCount numOfResults={numOfResults}/>
+        <ResultsCount numOfResults={numOfResults} />
         <SortingControls />
       </div>
 

@@ -1,60 +1,27 @@
 import { useEffect, useState } from 'react';
-import { type JobItem, type JobItemDetail } from './types';
-import { API_BASE_URL } from './constants';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAllJobItems, fetchJobItem } from './api-client';
 
 export const useJobItem = (activeId: number | null) => {
-  const [activeJob, setActiveJob] = useState<JobItemDetail | null>(null);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['job-item', activeId],
+    queryFn: () => fetchJobItem(activeId!),
+    retry: false,
+    enabled: Boolean(activeId),
+  });
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      const res = await fetch(`${API_BASE_URL}/${activeId}`);
-
-      if (!res.ok) {
-        console.error('Error fetching data');
-        return;
-      }
-
-      const data = await res.json();
-      setIsLoading(false);
-      setActiveJob(data.jobItem);
-    }
-    if (activeId) fetchData();
-  }, [activeId]);
-
-  return { activeJob, isLoading };
+  return { data, isLoading, isError };
 };
 
 export const useJobItems = (searchText: string) => {
-  const [jobItems, setJobItems] = useState<JobItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['job-items', searchText],
+    queryFn: () => fetchAllJobItems(searchText),
+    enabled: Boolean(searchText),
+    retry: false,
+  });
 
-  const numOfResults = jobItems.length;
-
-  useEffect(() => {
-    // https://bytegrad.com/course-assets/projects/rmtdev/api/data
-
-    async function fetchData() {
-      setIsLoading(true);
-      const res = await fetch(`${API_BASE_URL}?search=${searchText}`);
-      if (!res.ok) {
-        console.error('Error fetching data');
-        return;
-      }
-
-      const data = await res.json();
-      setIsLoading(false);
-      setJobItems(data.jobItems);
-    }
-    if (searchText) fetchData();
-  }, [searchText]);
-
-  const jobItemsSliced = jobItems.slice(0, 7);
-
-  return { jobItemsSliced, isLoading, numOfResults };
-  // return [jobItemsSliced, isLoading] as const;
+  return { data, isLoading, isError };
 };
 
 export const useActiveId = () => {
@@ -74,18 +41,3 @@ export const useActiveId = () => {
 
   return { activeId };
 };
-
-// export const useDebounce = <T>(value: T, delay = 500): T => {}
-export function useDebounce<T>(value: T, delay = 500): T {
-  const [debounceValue, setDebounceValue] = useState<T>(value);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebounceValue(value);
-    }, delay);
-
-    return () => clearTimeout(timeout);
-  }, [value, delay]);
-
-  return debounceValue;
-}
