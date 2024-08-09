@@ -12,11 +12,13 @@ import { useActiveId, useJobItem, useJobItems } from './lib/hooks';
 import { type JobItemDetail, type JobItem } from './lib/types';
 import { useDebounce } from './lib/utils';
 import toast from 'react-hot-toast';
+import PaginationControls from './components/PaginationControls';
 
 function App() {
   const [searchText, setSearchText] = useState<string>('');
   const { activeId } = useActiveId();
   const debouncedSearchText = useDebounce<string>(searchText, 500);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const {
     data: jobItems,
@@ -30,8 +32,26 @@ function App() {
     isError: errorOnFetchingJobDetail,
   } = useJobItem(activeId);
 
+  const numOfResults = jobItems?.length || 0;
+
+  const length = jobItems?.length || 0;
+  const limit = 7;
+  const totalNumPages = Math.ceil(length / limit);
+  const skip = currentPage * limit;
+
+  const jobItemsSliced =
+    jobItems?.slice((currentPage - 1) * skip, currentPage * skip) || [];
+
   const handleSearchText = (text: string) => {
     setSearchText(text);
+  };
+
+  const handleChangePage = (direction: 'next' | 'prev') => {
+    if (direction === 'next') {
+      setCurrentPage((p) => p + 1);
+    } else if (direction === 'prev') {
+      setCurrentPage((p) => p - 1);
+    }
   };
 
   if (errorOnFetchingAllJobItems) {
@@ -54,10 +74,15 @@ function App() {
       </Header>
 
       <Container>
-        <Sidebar numOfResults={jobItems?.length}>
+        <Sidebar numOfResults={numOfResults}>
           <JobList
-            jobItems={jobItems as JobItem[]}
+            jobItems={jobItemsSliced as JobItem[]}
             isLoading={isLoadingAllJobs}
+          />
+          <PaginationControls
+            currentPage={currentPage}
+            onClick={handleChangePage}
+            totalNumPages={totalNumPages}
           />
           <></>
         </Sidebar>

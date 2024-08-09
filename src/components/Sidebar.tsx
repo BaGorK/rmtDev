@@ -1,5 +1,4 @@
 import React from 'react';
-import PaginationControls from './PaginationControls';
 import ResultsCount from './ResultsCount';
 import SortingControls from './SortingControls';
 
@@ -18,8 +17,6 @@ export default function Sidebar({
       </div>
 
       {children}
-
-      <PaginationControls />
     </div>
   );
 }
