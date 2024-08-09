@@ -9,16 +9,21 @@ import JobItemContent from './components/JobItemContent';
 import Sidebar from './components/Sidebar';
 import JobList from './components/JobList';
 import { useActiveId, useJobItem, useJobItems } from './lib/hooks';
-import { type JobItemDetail, type JobItem } from './lib/types';
+import { type JobItemDetail, type JobItem, type SortBy } from './lib/types';
 import { useDebounce } from './lib/utils';
 import toast from 'react-hot-toast';
 import PaginationControls from './components/PaginationControls';
+import ResultsCount from './components/ResultsCount';
+import SortingControls from './components/SortingControls';
 
 function App() {
   const [searchText, setSearchText] = useState<string>('');
-  const { activeId } = useActiveId();
-  const debouncedSearchText = useDebounce<string>(searchText, 500);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<SortBy>('relevant');
+
+  const { activeId } = useActiveId();
+
+  const debouncedSearchText = useDebounce<string>(searchText, 500);
 
   const {
     data: jobItems,
@@ -39,8 +44,18 @@ function App() {
   const totalNumPages = Math.ceil(length / limit);
   const skip = currentPage * limit;
 
+  const jobItemsSorted = jobItems?.sort((a, b) => {
+    if (sortBy === 'relevant') {
+      return b.relevanceScore - a.relevanceScore;
+    } else {
+      return a.daysAgo - b.daysAgo;
+    }
+
+    return 0;
+  });
+
   const jobItemsSliced =
-    jobItems?.slice((currentPage - 1) * skip, currentPage * skip) || [];
+    jobItemsSorted?.slice((currentPage - 1) * skip, currentPage * skip) || [];
 
   const handleSearchText = (text: string) => {
     setSearchText(text);
@@ -52,6 +67,10 @@ function App() {
     } else if (direction === 'prev') {
       setCurrentPage((p) => p - 1);
     }
+  };
+  const handleChangeSortBy = (sort: SortBy) => {
+    setCurrentPage(1);
+    setSortBy(sort);
   };
 
   if (errorOnFetchingAllJobItems) {
@@ -74,7 +93,11 @@ function App() {
       </Header>
 
       <Container>
-        <Sidebar numOfResults={numOfResults}>
+        <Sidebar>
+          <div className='sidebar__top'>
+            <ResultsCount numOfResults={numOfResults} />
+            <SortingControls sortBy={sortBy} onClick={handleChangeSortBy} />
+          </div>
           <JobList
             jobItems={jobItemsSliced as JobItem[]}
             isLoading={isLoadingAllJobs}
