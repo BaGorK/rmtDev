@@ -5,7 +5,15 @@ export default function BookmarkIcon({ id }: { id: number }) {
   const { handleToggleBookmark, bookmarkedIds } = useBookmarkContext();
 
   return (
-    <button onClick={() => handleToggleBookmark(id)} className='bookmark-btn'>
+    <button
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        handleToggleBookmark(id);
+      }}
+      className='bookmark-btn'
+    >
       <BookmarkFilledIcon
         className={`${bookmarkedIds.includes(id) ? 'filled' : ''}`}
       />
