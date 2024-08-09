@@ -25,3 +25,5 @@ export type JobItemDetail = {
 };
 
 export type SortBy = 'relevant' | 'recent';
+
+export type PaginationDirection = 'next' | 'prev';

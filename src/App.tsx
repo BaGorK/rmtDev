@@ -9,7 +9,12 @@ import JobItemContent from './components/JobItemContent';
 import Sidebar from './components/Sidebar';
 import JobList from './components/JobList';
 import { useActiveId, useJobItem, useJobItems } from './lib/hooks';
-import { type JobItemDetail, type JobItem, type SortBy } from './lib/types';
+import {
+  type JobItemDetail,
+  type JobItem,
+  type SortBy,
+  type PaginationDirection,
+} from './lib/types';
 import { useDebounce } from './lib/utils';
 import toast from 'react-hot-toast';
 import PaginationControls from './components/PaginationControls';
@@ -44,7 +49,8 @@ function App() {
   const totalNumPages = Math.ceil(length / limit);
   const skip = currentPage * limit;
 
-  const jobItemsSorted = jobItems?.sort((a, b) => {
+  // sort mutates the original array | mutating the original is a bad practice
+  const jobItemsSorted = [...(jobItems || [])].sort((a, b) => {
     if (sortBy === 'relevant') {
       return b.relevanceScore - a.relevanceScore;
     } else {
@@ -61,7 +67,7 @@ function App() {
     setSearchText(text);
   };
 
-  const handleChangePage = (direction: 'next' | 'prev') => {
+  const handleChangePage = (direction: PaginationDirection) => {
     if (direction === 'next') {
       setCurrentPage((p) => p + 1);
     } else if (direction === 'prev') {
