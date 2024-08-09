@@ -79,6 +79,7 @@ function App() {
     setSortBy(sort);
   };
 
+
   if (errorOnFetchingAllJobItems) {
     toast.error('Error fetching all jobs');
   }
