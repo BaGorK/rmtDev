@@ -47,7 +47,6 @@ function App() {
   const length = jobItems?.length || 0;
   const limit = 7;
   const totalNumPages = Math.ceil(length / limit);
-  const skip = currentPage * limit;
 
   // sort mutates the original array | mutating the original is a bad practice
   const jobItemsSorted = [...(jobItems || [])].sort((a, b) => {
@@ -56,12 +55,10 @@ function App() {
     } else {
       return a.daysAgo - b.daysAgo;
     }
-
-    return 0;
   });
 
   const jobItemsSliced =
-    jobItemsSorted?.slice((currentPage - 1) * skip, currentPage * skip) || [];
+    jobItemsSorted?.slice((currentPage - 1) * limit, currentPage * limit) || [];
 
   const handleSearchText = (text: string) => {
     setSearchText(text);
@@ -78,7 +75,6 @@ function App() {
     setCurrentPage(1);
     setSortBy(sort);
   };
-
 
   if (errorOnFetchingAllJobItems) {
     toast.error('Error fetching all jobs');
