@@ -8,23 +8,85 @@ import SearchForm from './components/SearchForm';
 import JobItemContent from './components/JobItemContent';
 import Sidebar from './components/Sidebar';
 import JobList from './components/JobList';
-import { useActiveId, useDebounce, useJobItem, useJobItems } from './lib/hooks';
+import { useActiveId, useJobItem, useJobItems } from './lib/hooks';
+import {
+  type JobItemDetail,
+  type JobItem,
+  type SortBy,
+  type PaginationDirection,
+} from './lib/types';
+import { useDebounce } from './lib/utils';
+import toast from 'react-hot-toast';
+import PaginationControls from './components/PaginationControls';
+import ResultsCount from './components/ResultsCount';
+import SortingControls from './components/SortingControls';
 
 function App() {
   const [searchText, setSearchText] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<SortBy>('relevant');
+
   const { activeId } = useActiveId();
+
   const debouncedSearchText = useDebounce<string>(searchText, 500);
+
   const {
-    jobItemsSliced: jobItems,
-    numOfResults,
+    data: jobItems,
     isLoading: isLoadingAllJobs,
+    isError: errorOnFetchingAllJobItems,
   } = useJobItems(debouncedSearchText);
 
-  const { activeJob, isLoading: isLoadingJobItem } = useJobItem(activeId);
+  const {
+    data: activeJob,
+    isLoading: isLoadingJobItem,
+    isError: errorOnFetchingJobDetail,
+  } = useJobItem(activeId);
+
+  const numOfResults = jobItems?.length || 0;
+
+  const length = jobItems?.length || 0;
+  const limit = 7;
+  const totalNumPages = Math.ceil(length / limit);
+  const skip = currentPage * limit;
+
+  // sort mutates the original array | mutating the original is a bad practice
+  const jobItemsSorted = [...(jobItems || [])].sort((a, b) => {
+    if (sortBy === 'relevant') {
+      return b.relevanceScore - a.relevanceScore;
+    } else {
+      return a.daysAgo - b.daysAgo;
+    }
+
+    return 0;
+  });
+
+  const jobItemsSliced =
+    jobItemsSorted?.slice((currentPage - 1) * skip, currentPage * skip) || [];
 
   const handleSearchText = (text: string) => {
     setSearchText(text);
   };
+
+  const handleChangePage = (direction: PaginationDirection) => {
+    if (direction === 'next') {
+      setCurrentPage((p) => p + 1);
+    } else if (direction === 'prev') {
+      setCurrentPage((p) => p - 1);
+    }
+  };
+  const handleChangeSortBy = (sort: SortBy) => {
+    setCurrentPage(1);
+    setSortBy(sort);
+  };
+
+
+  if (errorOnFetchingAllJobItems) {
+    toast.error('Error fetching all jobs');
+  }
+
+  if (errorOnFetchingJobDetail) {
+    toast.error('Error fetching job detail');
+  }
 
   return (
     <>
@@ -38,10 +100,26 @@ function App() {
       </Header>
 
       <Container>
-        <Sidebar numOfResults={numOfResults}>
-          <JobList jobItems={jobItems} isLoading={isLoadingAllJobs} />
+        <Sidebar>
+          <div className='sidebar__top'>
+            <ResultsCount numOfResults={numOfResults} />
+            <SortingControls sortBy={sortBy} onClick={handleChangeSortBy} />
+          </div>
+          <JobList
+            jobItems={jobItemsSliced as JobItem[]}
+            isLoading={isLoadingAllJobs}
+          />
+          <PaginationControls
+            currentPage={currentPage}
+            onClick={handleChangePage}
+            totalNumPages={totalNumPages}
+          />
+          <></>
         </Sidebar>
-        <JobItemContent isLoading={isLoadingJobItem} activeJob={activeJob} />
+        <JobItemContent
+          isLoading={isLoadingJobItem}
+          activeJob={activeJob as JobItemDetail}
+        />
       </Container>
 
       <Footer />

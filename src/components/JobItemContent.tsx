@@ -31,7 +31,7 @@ export default function JobItemContent({ activeJob, isLoading }: Props) {
             <div className='job-info__below-badge'>
               <time className='job-info__time'>2d</time>
 
-              <BookmarkIcon />
+              <BookmarkIcon id={activeJob.id} />
             </div>
           </div>
 
