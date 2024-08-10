@@ -1,6 +1,27 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { fetchAllJobItems, fetchJobItem } from './api-client';
+import { type JobItemDetail } from './types';
+
+export const useJobItems = (bookmarkedIds: number[]) => {
+  const { data, isLoading } = useQueries({
+    queries: bookmarkedIds.map((id) => ({
+      queryKey: ['job-item', id],
+      queryFn: () => fetchJobItem(id),
+    })),
+    combine: (results) => {
+      return {
+        data: results.map((result) => result.data),
+        isLoading: results.some((result) => result.isPending),
+      };
+    },
+  });
+
+  return { data, isLoading } as {
+    data: JobItemDetail[];
+    isLoading: boolean;
+  };
+};
 
 export const useJobItem = (activeId: number | null) => {
   const { data, isLoading, isError } = useQuery({
@@ -13,7 +34,7 @@ export const useJobItem = (activeId: number | null) => {
   return { data, isLoading, isError };
 };
 
-export const useJobItems = (searchText: string) => {
+export const useSearchQuery = (searchText: string) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['job-items', searchText],
     queryFn: () => fetchAllJobItems(searchText),
@@ -42,7 +63,10 @@ export const useActiveId = () => {
   return { activeId };
 };
 
-export const useLocalStorage = <T>(key: string, initialValue: T) => {
+export const useLocalStorage = <T>(
+  key: string,
+  initialValue: T
+): [T, React.Dispatch<React.SetStateAction<T>>] => {
   const [value, setValue] = useState<T>(() =>
     JSON.parse(
       (localStorage.getItem(key) !== 'null' && localStorage.getItem(key)) ||
