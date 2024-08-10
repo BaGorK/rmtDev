@@ -11,13 +11,13 @@ const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')!).render(
   <>
-    <BookmarkProvider>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <BookmarkProvider>
         <Toaster position='top-center' />
         <ReactQueryDevtools initialIsOpen={false} />
 
         <App />
-      </QueryClientProvider>
-    </BookmarkProvider>
+      </BookmarkProvider>
+    </QueryClientProvider>
   </>
 );

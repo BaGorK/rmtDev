@@ -8,7 +8,7 @@ import SearchForm from './components/SearchForm';
 import JobItemContent from './components/JobItemContent';
 import Sidebar from './components/Sidebar';
 import JobList from './components/JobList';
-import { useActiveId, useJobItem, useJobItems } from './lib/hooks';
+import { useActiveId, useJobItem, useSearchQuery } from './lib/hooks';
 import {
   type JobItemDetail,
   type JobItem,
@@ -20,6 +20,8 @@ import toast from 'react-hot-toast';
 import PaginationControls from './components/PaginationControls';
 import ResultsCount from './components/ResultsCount';
 import SortingControls from './components/SortingControls';
+import Logo from './components/Logo';
+import BookmarksButton from './components/BookmarksButton';
 
 function App() {
   const [searchText, setSearchText] = useState<string>('');
@@ -34,7 +36,7 @@ function App() {
     data: jobItems,
     isLoading: isLoadingAllJobs,
     isError: errorOnFetchingAllJobItems,
-  } = useJobItems(debouncedSearchText);
+  } = useSearchQuery(debouncedSearchText);
 
   const {
     data: activeJob,
@@ -89,6 +91,10 @@ function App() {
       <Background />
 
       <Header>
+        <div className='header__top'>
+          <Logo />
+          <BookmarksButton />
+        </div>
         <SearchForm
           handleSearchText={handleSearchText}
           searchText={searchText}
