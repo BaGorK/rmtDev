@@ -1,11 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
-import {
-  createContext,
-  type ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, type ReactNode, useContext } from 'react';
+import { useLocalStorage } from '../lib/hooks';
 
 type BookmarkContextValue = {
   bookmarkedIds: number[];
@@ -15,15 +10,10 @@ type BookmarkContextValue = {
 const BookmarkContext = createContext<BookmarkContextValue | null>(null);
 
 function BookmarkProvider({ children }: { children: ReactNode }) {
-  const storedBookmarkIds = JSON.parse(
-    localStorage.getItem('bookmarkedIds') || '[]'
+  const [bookmarkedIds, setBookmarkedIds] = useLocalStorage<number[]>(
+    'bookmarkedIds',
+    []
   );
-  const [bookmarkedIds, setBookmarkedIds] =
-    useState<number[]>(storedBookmarkIds);
-
-  useEffect(() => {
-    localStorage.setItem('bookmarkedIds', JSON.stringify(bookmarkedIds));
-  }, [bookmarkedIds]);
 
   const handleToggleBookmark = (id: number) => {
     if (bookmarkedIds?.includes(id)) {
@@ -32,6 +22,7 @@ function BookmarkProvider({ children }: { children: ReactNode }) {
       setBookmarkedIds((prev) => [...prev, id]);
     }
   };
+
   return (
     <BookmarkContext.Provider value={{ bookmarkedIds, handleToggleBookmark }}>
       {children}
