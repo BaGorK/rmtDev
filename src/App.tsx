@@ -1,13 +1,6 @@
+import toast from 'react-hot-toast';
 import { useState } from 'react';
 
-import Background from './components/Background';
-import Container from './components/Container';
-import Footer from './components/Footer';
-import Header from './components/Header';
-import SearchForm from './components/SearchForm';
-import JobItemContent from './components/JobItemContent';
-import Sidebar from './components/Sidebar';
-import JobList from './components/JobList';
 import { useActiveId, useJobItem, useSearchQuery } from './lib/hooks';
 import {
   type JobItemDetail,
@@ -16,12 +9,21 @@ import {
   type PaginationDirection,
 } from './lib/types';
 import { useDebounce } from './lib/utils';
-import toast from 'react-hot-toast';
-import PaginationControls from './components/PaginationControls';
-import ResultsCount from './components/ResultsCount';
-import SortingControls from './components/SortingControls';
-import Logo from './components/Logo';
-import BookmarksButton from './components/BookmarksButton';
+import {
+  Background,
+  BookmarksButton,
+  Container,
+  Footer,
+  Header,
+  JobItemContent,
+  JobList,
+  Logo,
+  PaginationControls,
+  ResultsCount,
+  SearchForm,
+  Sidebar,
+  SortingControls,
+} from './components';
 
 function App() {
   const [searchText, setSearchText] = useState<string>('');
