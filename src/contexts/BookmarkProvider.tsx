@@ -1,7 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, type ReactNode, useContext } from 'react';
-import { useJobItems, useLocalStorage } from '../lib/hooks';
+import { useJobItems } from '../lib/hooks';
 import { type JobItemDetail } from '../lib/types';
+import { useLocalStorage } from '../lib/useLocalStorage';
 
 type BookmarkContextValue = {
   bookmarkedIds: number[];
